@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Game Bab 1</title>
+  <link rel="stylesheet" href="./src/output.css">
+  <style>
+    body::-webkit-scrollbar { display: none; }
+    .dropzone { transition: all 0.3s ease; }
+    .card {
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      cursor: grab;
+    }
+    .card:active { cursor: grabbing; }
+    .card:hover { transform: scale(1.05); box-shadow: 0 6px 12px rgba(0,0,0,0.15); }
+    @keyframes pulse { 0%,100%{transform:scale(1);}50%{transform:scale(1.05);} }
+    .pulse { animation: pulse 0.4s ease; }
+
+    /* Modal */
+    .modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.6);
+      justify-content: center;
+      align-items: center;
+      z-index: 50;
+    }
+    .modal-content {
+      background: white;
+      padding: 2rem;
+      border-radius: 1rem;
+      text-align: center;
+      max-width: 400px;
+      width: 90%;
+      box-shadow: 0 6px 15px rgba(0,0,0,0.2);
+    }
+  </style>
+</head>
+<body class="bg-gray-100 mx-3 my-2">
+  <!-- Header -->
+  <header class="flex items-center justify-between mt-5 flex-wrap gap-3">
+    <button onclick="window.history.back()"
+      class="p-2 rounded-xl border bg-linear-to-t from-green-600 to-green-500 border-b-4 border-green-700 text-white font-semibold shadow-sm transition-all duration-150 hover:scale-110 active:scale-95 active:shadow-inner">
+       Kembali
+    </button>
+    <h1 class="font-bold text-2xl md:text-3xl text-green-700 text-center flex-1">
+      Bab 1 : Puzzle Pertumbuhan 🧩
+    </h1>
+    <div class="w-12"></div>
+  </header>
+
+  <main class="mt-5">
+    <!-- Instruksi -->
+    <div class="flex justify-center">
+      <div class="bg-green-200 py-3 px-4 rounded-2xl border-b-4 border-green-500 shadow text-center font-medium">
+        Masukkan pertumbuhan ke kategori <b>Hewan</b>, <b>Tumbuhan</b>, atau <b>Manusia</b>.
+      </div>
+    </div>
+
+    <!-- Kartu -->
+    <div class="flex justify-center">
+      <div id="cards"
+        class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 mb-8 mt-6 max-w-6xl">
+        <div draggable="true" data-answer="manusia" class="mt-2 card px-4 py-3 bg-white shadow-md rounded-xl text-center font-medium">👶 Bayi</div>
+        <div draggable="true" data-answer="tumbuhan" class="mt-2 card px-4 py-3 bg-white shadow-md rounded-xl text-center font-medium">🌱 Biji</div>
+        <div draggable="true" data-answer="manusia" class="mt-2 card px-4 py-3 bg-white shadow-md rounded-xl text-center font-medium">👦 Anak-anak</div>
+        <div draggable="true" data-answer="manusia" class="mt-2 card px-4 py-3 bg-white shadow-md rounded-xl text-center font-medium">👩 Remaja</div>
+        <div draggable="true" data-answer="manusia" class="mt-2 card px-4 py-3 bg-white shadow-md rounded-xl text-center font-medium">🧑 Dewasa</div>
+        <div draggable="true" data-answer="hewan" class="mt-2 card px-4 py-3 bg-white shadow-md rounded-xl text-center font-medium">🐣 Anak Ayam</div>
+        <div draggable="true" data-answer="hewan" class="mt-2 card px-4 py-3 bg-white shadow-md rounded-xl text-center font-medium">🦋 Kepompong</div>
+        <div draggable="true" data-answer="tumbuhan" class="mt-2 card px-4 py-3 bg-white shadow-md rounded-xl text-center font-medium">🌳 Pohon</div>
+      </div>
+    </div>
+
+    <!-- Kategori -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-6xl mx-auto mb-6">
+      <div data-category="hewan" class="dropzone bg-blue-200/80 p-4 rounded-2xl min-h-[220px] shadow-lg">
+        <h2 class="font-bold text-blue-900 mb-3 text-xl text-center">🦁 Hewan</h2>
+      </div>
+      <div data-category="tumbuhan" class="dropzone bg-green-200/80 p-4 rounded-2xl min-h-[220px] shadow-lg">
+        <h2 class="font-bold text-green-900 mb-3 text-xl text-center">🌳 Tumbuhan</h2>
+      </div>
+      <div data-category="manusia" class="dropzone bg-red-200/80 p-4 rounded-2xl min-h-[220px] shadow-lg">
+        <h2 class="font-bold text-red-900 mb-3 text-xl text-center">🙋 Manusia</h2>
+      </div>
+    </div>
+
+    <!-- Tombol -->
+    <div class="flex flex-wrap gap-4 justify-center">
+      <button id="checkBtn"
+        class="px-6 py-2 rounded-xl border bg-linear-to-t from-blue-600 to-blue-500 border-b-4 border-blue-700 text-white font-semibold shadow-sm transition-all duration-150 hover:scale-110 active:scale-95 active:shadow-inner">
+        Kirim Jawaban
+      </button>
+      <button id="resetBtn"
+        class="px-6 py-2 rounded-xl border bg-linear-to-t from-gray-600 to-gray-500 border-b-4 border-gray-700 text-white font-semibold shadow-sm transition-all duration-150 hover:scale-110 active:scale-95 active:shadow-inner">
+        Reset
+      </button>
+    </div>
+  </main>
+
+  <!-- Modal Hasil -->
+  <div id="resultModal" class="modal flex">
+    <div class="modal-content">
+      <h2 id="modalText" class="text-xl font-bold mb-4">Hasil Kamu</h2>
+      <div class="flex gap-4 justify-center">
+        <button id="ulangBtn" class="p-2 rounded-xl border bg-linear-to-t from-blue-600 to-blue-500 border-b-4 border-blue-700 text-white font-semibold shadow-sm transition-all duration-150 hover:scale-110 active:scale-95 active:shadow-inner">Ulang Game</button>
+        <button id="menuBtn" class="p-2 rounded-xl border bg-linear-to-t from-green-600 to-green-500 border-b-4 border-green-700 text-white font-semibold shadow-sm transition-all duration-150 hover:scale-110 active:scale-95 active:shadow-inner">Back to Menu</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Warning -->
+  <div id="warningModal" class="modal flex">
+    <div class="modal-content">
+      <h2 class="text-xl font-bold mb-4 text-red-600">⚠️ Peringatan</h2>
+      <p class="mb-6">Kamu harus menempatkan semua kartu ke kategori sebelum mengirim jawaban!</p>
+      <button id="closeWarning" class="p-2 px-5 rounded-xl border bg-linear-to-t from-red-600 to-red-500 border-b-4 border-red-700 text-white font-semibold shadow-sm transition-all duration-150 hover:scale-110 active:scale-95 active:shadow-inner">OK</button>
+    </div>
+  </div>
+
+  <!-- Modal Konfirmasi Reset -->
+  <div id="resetModal" class="modal flex">
+    <div class="modal-content">
+      <h2 class="text-xl font-bold mb-4"> Reset Game</h2>
+      <p class="mb-6">Apakah kamu yakin ingin mereset jawaban?</p>
+      <div class="flex gap-4 justify-center">
+        <button id="confirmReset" class="p-2 px-5 rounded-xl border bg-linear-to-t from-gray-600 to-gray-500 border-b-4 border-gray-700 text-white font-semibold">Ya</button>
+        <button id="cancelReset" class="p-2 px-5 rounded-xl border bg-linear-to-t from-red-600 to-red-500 border-b-4 border-red-700 text-white font-semibold">Batal</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Konfirmasi Kirim -->
+  <div id="confirmModal" class="modal flex">
+    <div class="modal-content">
+      <h2 class="text-xl font-bold mb-4">Kirim Jawaban</h2>
+      <p class="mb-6">Apakah kamu yakin ingin mengirim jawaban?</p>
+      <div class="flex gap-4 justify-center">
+        <button id="confirmSubmit" class="p-2 px-5 rounded-xl border bg-linear-to-t from-blue-600 to-blue-500 border-b-4 border-blue-700 text-white font-semibold shadow-sm transition-all duration-150 hover:scale-110 active:scale-95 active:shadow-inner">Ya</button>
+        <button id="cancelSubmit" class="p-2 px-5 rounded-xl border bg-linear-to-t from-red-600 to-red-500 border-b-4 border-red-700 text-white font-semibold shadow-sm transition-all duration-150 hover:scale-110 active:scale-95 active:shadow-inner">Batal</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Tutorial -->
+  <div id="tutorialModal" class="modal flex">
+    <div class="modal-content">
+      <h2 class="text-xl font-bold mb-4">📖 Tutorial</h2>
+      <p class="mb-6 text-left">
+        1. Seret kartu ke kategori yang sesuai.<br>
+        2. Setiap kategori maksimal menampung 4 kartu.<br>
+        3. Klik <b>Kirim Jawaban</b> jika sudah selesai.<br>
+        4. Skor akan muncul setelah mengirim jawaban.<br>
+        5. Klik <b>Reset</b> untuk mengulang game.
+      </p>
+      <button id="closeTutorial" class="p-2 rounded-xl border bg-linear-to-t from-green-600 to-green-500 border-b-4 border-green-700 text-white font-semibold shadow-sm transition-all duration-150 hover:scale-110 active:scale-95 active:shadow-inner">Mulai Bermain</button>
+    </div>
+  </div>
+
+  <script>
+    const cards = document.querySelectorAll('[draggable="true"]');
+    const dropzones = document.querySelectorAll('.dropzone');
+    const cardArea = document.getElementById('cards');
+    let draggedCard = null;
+
+    function makeDraggable(card) {
+      card.addEventListener('dragstart', () => {
+        draggedCard = card;
+        setTimeout(() => card.classList.add('opacity-0', 'scale-90'), 0);
+      });
+      card.addEventListener('dragend', () => {
+        card.classList.remove('opacity-0', 'scale-90');
+        draggedCard = null;
+      });
+    }
+    cards.forEach(makeDraggable);
+
+    dropzones.forEach(zone => {
+      zone.addEventListener('dragover', e => {
+        e.preventDefault();
+        zone.classList.add('ring-4', 'ring-indigo-400', 'scale-105');
+      });
+      zone.addEventListener('dragleave', () => {
+        zone.classList.remove('ring-4', 'ring-indigo-400', 'scale-105');
+      });
+      zone.addEventListener('drop', e => {
+        e.preventDefault();
+        zone.classList.remove('ring-4', 'ring-indigo-400', 'scale-105');
+        if (draggedCard) {
+          if (zone.querySelectorAll('[draggable="true"]').length >= 4) {
+            // Batas maksimal 4 kartu
+            document.getElementById('warningModal').style.display = "flex";
+            return;
+          }
+          zone.appendChild(draggedCard);
+          draggedCard.classList.add("pulse");
+          setTimeout(() => draggedCard.classList.remove("pulse"), 400);
+        }
+      });
+    });
+
+    // Modal elemen
+    const modal = document.getElementById('resultModal');
+    const modalText = document.getElementById('modalText');
+    const warningModal = document.getElementById('warningModal');
+    const resetModal = document.getElementById('resetModal');
+    const confirmModal = document.getElementById('confirmModal');
+    const tutorialModal = document.getElementById('tutorialModal');
+
+    // Cek jawaban (dibuka lewat konfirmasi modal)
+    function checkAnswer() {
+      const remaining = cardArea.querySelectorAll('[draggable="true"]').length;
+      if (remaining > 0) {
+        warningModal.style.display = "flex";
+        return;
+      }
+
+      let total = 0, benar = 0;
+      dropzones.forEach(zone => {
+        const category = zone.dataset.category;
+        const items = zone.querySelectorAll('[draggable="true"]');
+        items.forEach(item => {
+          total++;
+          if (item.dataset.answer === category) {
+            benar++;
+            item.classList.remove('bg-white', 'bg-red-300');
+            item.classList.add('bg-green-300');
+          } else {
+            item.classList.remove('bg-white', 'bg-green-300');
+            item.classList.add('bg-red-300');
+          }
+        });
+      });
+
+      modalText.textContent = `🎯 Skor Kamu: ${benar} / ${total}`;
+      modal.style.display = "flex";
+    }
+
+    // Reset Game
+    function resetGame() {
+      dropzones.forEach(zone => {
+        const title = zone.querySelector('h2').outerHTML;
+        zone.innerHTML = title;
+      });
+
+      const defaultCards = [
+        { text: "👶 Bayi", answer: "manusia" },
+        { text: "🌱 Biji", answer: "tumbuhan" },
+        { text: "👦 Anak-anak", answer: "manusia" },
+        { text: "👩 Remaja", answer: "manusia" },
+        { text: "🧑 Dewasa", answer: "manusia" },
+        { text: "🐣 Anak Ayam", answer: "hewan" },
+        { text: "🦋 Kepompong", answer: "hewan" },
+        { text: "🌳 Pohon", answer: "tumbuhan" },
+      ];
+
+      cardArea.innerHTML = "";
+      defaultCards.forEach(c => {
+        const el = document.createElement("div");
+        el.draggable = true;
+        el.dataset.answer = c.answer;
+        el.className = "card px-4 py-3 bg-white shadow-md rounded-xl text-center font-medium mt-4";
+        el.textContent = c.text;
+        makeDraggable(el);
+        cardArea.appendChild(el);
+      });
+    }
+
+    // Tombol event
+    document.getElementById('checkBtn').addEventListener('click', () => confirmModal.style.display = "flex");
+    document.getElementById('resetBtn').addEventListener('click', () => resetModal.style.display = "flex");
+
+    document.getElementById('confirmSubmit').addEventListener('click', () => {
+      confirmModal.style.display = "none";
+      checkAnswer();
+    });
+    document.getElementById('cancelSubmit').addEventListener('click', () => confirmModal.style.display = "none");
+
+    document.getElementById('confirmReset').addEventListener('click', () => {
+      resetModal.style.display = "none";
+      resetGame();
+    });
+    document.getElementById('cancelReset').addEventListener('click', () => resetModal.style.display = "none");
+
+    document.getElementById('ulangBtn').addEventListener('click', () => {
+      resetGame();
+      modal.style.display = "none";
+    });
+    document.getElementById('menuBtn').addEventListener('click', () => {
+      window.location.href = "index.html"; 
+    });
+
+    document.getElementById('closeWarning').addEventListener('click', () => {
+      warningModal.style.display = "none";
+    });
+
+    // Tutorial muncul saat halaman dibuka
+    window.addEventListener('load', () => {
+      tutorialModal.style.display = "flex";
+    });
+    document.getElementById('closeTutorial').addEventListener('click', () => {
+      tutorialModal.style.display = "none";
+    });
+  </script>
+</body>
+</html>
